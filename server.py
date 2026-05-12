@@ -227,4 +227,5 @@ if __name__ == '__main__':
     print("║  Admin        →  http://localhost:5000/admin ║")
     print("║  API          →  http://localhost:5000/api   ║")
     print("╚══════════════════════════════════════════╝")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+   port = int(os.environ.get('PORT', 5000))
+app.run(host='0.0.0.0', port=port)

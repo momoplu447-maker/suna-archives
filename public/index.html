@@ -421,7 +421,7 @@ function renderReports() {
   l.innerHTML = _reports.map((r, i) => `
     <div class="report-card" onclick="openModal(${r.id})" style="animation-delay:${i*.08}s">
       <div class="rc-bg">
-        <div class="report-seal ${sealC[r.rank]||'seal-d'}">${r.rank}</div>
+        ${r.rank ? `<div class="report-seal ${sealC[r.rank]||'seal-d'}">${r.rank}</div>` : ''}
         <div class="rc-inner">
           <div class="rc-num-block"><span class="rc-num">${r.number}</span><span class="rc-num-lbl">Mission</span></div>
           <div class="rc-sep"></div>
@@ -446,7 +446,7 @@ function openModal(id) {
   document.getElementById('mTitle').textContent = r.title;
   document.getElementById('mBody').textContent  = r.body;
   const fields = [
-    {l:'Rang',   v:r.rank},
+    {l:'Rang',   v:r.rank || null},
     {l:'Date',   v:r.date_mission},
     {l:'Durée',  v:r.duration},
     {l:'Lieu',   v:r.lieu},
@@ -463,6 +463,60 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+/* ── MUSIQUE ── */
+const MUSIC_URL = 'https://cdn.pixabay.com/audio/2024/02/26/audio_b4d5b4e5de.mp3';
+let audio = null;
+let musicOn = false;
+
+function initAudio() {
+  if (audio) return;
+  audio = new Audio(MUSIC_URL);
+  audio.loop = true;
+  audio.volume = 0.35;
+}
+
+function toggleMusic() {
+  initAudio();
+  const btn = document.getElementById('musicBtn');
+  const icon = document.getElementById('musicIcon');
+  if (musicOn) {
+    audio.pause(); musicOn = false;
+    btn.classList.remove('playing'); icon.textContent = '♪';
+  } else {
+    audio.play().catch(()=>{}); musicOn = true;
+    btn.classList.add('playing'); icon.textContent = '♫';
+  }
+}
+
+document.addEventListener('click', function tryAuto() {
+  if (!musicOn) {
+    initAudio();
+    audio.play().then(() => {
+      musicOn = true;
+      const btn = document.getElementById('musicBtn');
+      const icon = document.getElementById('musicIcon');
+      if (btn) { btn.classList.add('playing'); icon.textContent = '♫'; }
+    }).catch(()=>{});
+  }
+}, { once: true });
 </script>
+
+<div id="musicPlayer">
+  <button id="musicBtn" onclick="toggleMusic()" title="Musique">
+    <span id="musicIcon">♪</span>
+    <span>Musique</span>
+  </button>
+</div>
+
+<style>
+#musicPlayer{position:fixed;bottom:1.5rem;right:1.5rem;z-index:500}
+#musicBtn{display:flex;align-items:center;gap:.5rem;background:rgba(13,10,5,.85);border:1px solid rgba(200,151,58,.3);color:var(--gold-dim);font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.18em;padding:.5rem .9rem;cursor:pointer;transition:all .3s;backdrop-filter:blur(8px);box-shadow:0 4px 20px rgba(0,0,0,.5)}
+#musicBtn:hover{border-color:var(--gold);color:var(--gold)}
+#musicBtn.playing{border-color:rgba(200,151,58,.55);color:var(--gold-bright);box-shadow:0 4px 20px rgba(0,0,0,.5),0 0 15px rgba(200,151,58,.15)}
+#musicIcon{font-size:.9rem}
+#musicBtn.playing #musicIcon{animation:mPulse 1.5s ease-in-out infinite}
+@keyframes mPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+</style>
 </body>
 </html>

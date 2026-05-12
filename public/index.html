@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ousen Zafura — Archives de Suna</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;500;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#c8973a;--gold-bright:#f0c060;--gold-dim:#7a5a18;
+  --sand:#e8d4a0;--sand-pale:#f5ecd8;
+  --blood:#8b1c1c;--blood-bright:#c02828;
+  --deep:#0d0a05;
+}
+html{scroll-behavior:smooth}
+body{background:var(--deep);font-family:'IM Fell English',serif;overflow-x:hidden;cursor:crosshair}
+
+/* ── HERO SCENE ── */
+#scene{position:relative;width:100vw;height:100vh;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#sky{position:absolute;inset:0;background:linear-gradient(180deg,#050300 0%,#100b02 25%,#1e1205 45%,#2a1a07 60%,#3d2a0c 75%,#5c3e14 88%,#7a5220 100%);z-index:0}
+#stars{position:absolute;inset:0;z-index:1;pointer-events:none}
+#moon{position:absolute;top:8%;right:15%;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#f5e4b0,#c8973a 60%,#7a5218);box-shadow:0 0 40px rgba(200,151,58,.4),0 0 80px rgba(200,151,58,.15),0 0 120px rgba(200,151,58,.05);z-index:2;animation:moonPulse 4s ease-in-out infinite}
+@keyframes moonPulse{0%,100%{box-shadow:0 0 40px rgba(200,151,58,.4),0 0 80px rgba(200,151,58,.15)}50%{box-shadow:0 0 60px rgba(200,151,58,.6),0 0 100px rgba(200,151,58,.25),0 0 160px rgba(200,151,58,.08)}}
+
+.kanji-float{position:absolute;font-family:'Cinzel Decorative',serif;color:rgba(200,151,58,.06);z-index:2;animation:kanjiDrift linear infinite;pointer-events:none;user-select:none}
+@keyframes kanjiDrift{0%{opacity:0;transform:translateY(0) rotate(-5deg)}10%{opacity:1}90%{opacity:.4}100%{opacity:0;transform:translateY(-35vh) rotate(10deg)}}
+
+#sandCanvas{position:absolute;inset:0;z-index:3;pointer-events:none}
+#dunes-wrap{position:absolute;bottom:0;left:-5%;right:-5%;z-index:5;pointer-events:none}
+#village-sil{position:absolute;bottom:26%;left:50%;transform:translateX(-50%);width:700px;z-index:4;opacity:.15;pointer-events:none}
+
+/* ── HERO CONTENT ── */
+#hero-content{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;margin-bottom:8vh;animation:heroReveal 2s ease forwards}
+@keyframes heroReveal{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+.village-label{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.5em;color:var(--gold-dim);text-transform:uppercase;margin-bottom:1.5rem;position:relative}
+.village-label::before,.village-label::after{content:'';position:absolute;top:50%;width:40px;height:1px}
+.village-label::before{right:calc(100% + 10px);background:linear-gradient(to left,var(--gold-dim),transparent)}
+.village-label::after{left:calc(100% + 10px);background:linear-gradient(to right,var(--gold-dim),transparent)}
+
+/* OVAL */
+.char-wrapper{position:relative;cursor:pointer}
+.ring-outer{position:absolute;inset:-16px;border-radius:50%;border:1px solid rgba(200,151,58,.2);animation:spin 20s linear infinite}
+.ring-outer::before{content:'';position:absolute;top:-3px;left:50%;width:6px;height:6px;background:var(--gold);border-radius:50%;transform:translateX(-50%);box-shadow:0 0 8px var(--gold)}
+.ring-inner{position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(200,151,58,.1);animation:spin 14s linear infinite reverse}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+.char-oval{width:200px;height:262px;border-radius:50%/52%;overflow:hidden;position:relative;border:2px solid rgba(200,151,58,.5);box-shadow:0 0 0 1px rgba(200,151,58,.1),0 20px 60px rgba(0,0,0,.8),0 0 80px rgba(200,151,58,.08),inset 0 0 40px rgba(0,0,0,.6);transition:transform .4s ease,box-shadow .4s ease;background:#0d0a05}
+.char-wrapper:hover .char-oval{transform:scale(1.04);box-shadow:0 0 0 1px rgba(200,151,58,.35),0 30px 80px rgba(0,0,0,.9),0 0 120px rgba(200,151,58,.22),inset 0 0 40px rgba(0,0,0,.4)}
+
+.char-oval img{width:100%;height:100%;object-fit:cover;object-position:top center;display:none}
+.char-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem}
+.char-placeholder svg{opacity:.3;color:var(--gold)}
+.char-placeholder span{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.2em;color:var(--gold-dim);opacity:.6}
+
+.char-hover-label{position:absolute;inset:0;border-radius:50%/52%;background:rgba(13,10,5,.72);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.2em;color:var(--gold);opacity:0;transition:opacity .3s;pointer-events:none}
+.char-wrapper:hover .char-hover-label{opacity:1}
+
+/* BANDEROLE */
+.name-banner{position:relative;margin-top:-18px;z-index:20;padding:.5rem 2.5rem .5rem 2rem;background:linear-gradient(135deg,#5a0c0c 0%,var(--blood-bright) 45%,#5a0c0c 100%);clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);box-shadow:0 8px 30px rgba(0,0,0,.6),0 2px 0 rgba(200,151,58,.25)}
+.name-banner::before{content:'';position:absolute;top:1px;left:1px;right:1px;height:1px;background:linear-gradient(to right,transparent,rgba(240,192,96,.45),transparent)}
+.char-name{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--sand-pale);letter-spacing:.1em;white-space:nowrap;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+
+.char-rank{font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.4em;color:var(--gold-dim);margin-top:1rem;animation:breathe 3s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.4}50%{opacity:1}}
+
+.scroll-cue{margin-top:1.4rem;display:flex;flex-direction:column;align-items:center;gap:.4rem;cursor:pointer;opacity:.55;transition:opacity .2s;animation:bounceCue 2.2s ease-in-out infinite}
+.scroll-cue:hover{opacity:1}
+@keyframes bounceCue{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+.scroll-cue span{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.3em;color:var(--gold-dim)}
+.scroll-cue svg{color:var(--gold-dim)}
+
+/* ── RAPPORTS PAGE ── */
+#reports-page{display:none;min-height:100vh;position:relative;overflow:hidden}
+#reports-page.active{display:block}
+
+.rp-bg{position:fixed;inset:0;z-index:0;background:linear-gradient(180deg,#060401 0%,#100c03 40%,#1e1608 70%,#2d2010 100%)}
+.rp-dunes{position:fixed;bottom:0;left:0;right:0;z-index:1;pointer-events:none;opacity:.5}
+.heat-line{position:fixed;bottom:22%;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(200,151,58,.2),transparent);z-index:2;animation:heatWave 3.5s ease-in-out infinite}
+@keyframes heatWave{0%,100%{transform:scaleX(.7);opacity:.2}50%{transform:scaleX(1.15);opacity:.7}}
+#sandCanvas2{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.25}
+
+.reports-wrap{position:relative;z-index:10;max-width:780px;margin:0 auto;padding:3rem 1.5rem 6rem}
+
+.back-btn{display:inline-flex;align-items:center;gap:.5rem;background:none;border:1px solid rgba(200,151,58,.22);color:var(--gold-dim);font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.22em;padding:.5rem 1.2rem;cursor:pointer;margin-bottom:2rem;transition:all .2s}
+.back-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(200,151,58,.05)}
+
+.reports-header-block{text-align:center;margin-bottom:2.5rem;animation:fadeUp .6s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.rh-ornament{font-size:1.6rem;color:var(--gold-dim);opacity:.45;letter-spacing:.8rem}
+.rh-title{font-family:'Cinzel Decorative',serif;font-size:1.3rem;color:var(--gold-bright);letter-spacing:.08em;margin:.3rem 0 .2rem;text-shadow:0 0 30px rgba(240,192,96,.3)}
+.rh-sub{font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.38em;color:var(--gold-dim);opacity:.7}
+.rh-line{width:180px;height:1px;background:linear-gradient(to right,transparent,var(--gold-dim),transparent);margin:.9rem auto 0}
+
+/* RAPPORT CARD */
+.report-card{position:relative;margin-bottom:1.1rem;cursor:pointer;animation:cardReveal .45s ease backwards}
+@keyframes cardReveal{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:translateX(0)}}
+
+.rc-bg{background:linear-gradient(135deg,#f5e8b5 0%,#edd878 28%,#e8cc65 52%,#edd878 72%,#f0e090 100%);border:1px solid rgba(139,105,20,.38);position:relative;overflow:hidden;transition:transform .3s ease,box-shadow .3s ease;box-shadow:0 6px 25px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.28)}
+.rc-bg::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='f'%3E%3CfeTurbulence baseFrequency='0.75' numOctaves='4' type='fractalNoise' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23f)' opacity='0.06'/%3E%3C/svg%3E");pointer-events:none;mix-blend-mode:multiply}
+.rc-bg::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(to right,#5a0c0c,var(--blood-bright),#5a0c0c)}
+
+.report-card:hover .rc-bg{transform:translateX(9px) translateY(-2px);box-shadow:-5px 8px 30px rgba(0,0,0,.6),5px 0 0 var(--gold),inset 0 1px 0 rgba(255,255,255,.38)}
+
+.report-seal{position:absolute;right:1.2rem;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-family:'Cinzel Decorative',serif;font-size:1rem;font-weight:700;opacity:.65}
+.seal-s{color:#8b0000;border-color:#8b0000}.seal-a{color:#7a5218;border-color:#7a5218}
+.seal-b{color:#2a5a18;border-color:#2a5a18}.seal-c{color:#18487a;border-color:#18487a}
+.seal-d{color:rgba(26,18,8,.38);border-color:rgba(26,18,8,.3)}
+
+.rc-inner{padding:1rem 5rem 1rem 1.4rem;display:flex;align-items:center;gap:1.1rem;position:relative;z-index:1}
+.rc-num-block{text-align:center;min-width:2.8rem}
+.rc-num{font-family:'Cinzel Decorative',serif;font-size:1.5rem;color:var(--blood);line-height:1;display:block}
+.rc-num-lbl{font-family:'Cinzel',serif;font-size:.42rem;letter-spacing:.2em;color:rgba(26,18,8,.38);display:block;margin-top:.1rem}
+.rc-sep{width:1px;height:42px;background:linear-gradient(to bottom,transparent,rgba(139,105,20,.45),transparent);flex-shrink:0}
+.rc-text{flex:1}
+.rc-title{font-family:'Cinzel',serif;font-size:.88rem;color:#1a1208;font-weight:600;letter-spacing:.04em;margin-bottom:.28rem}
+.rc-meta{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+.meta-item{font-size:.62rem;color:rgba(26,18,8,.48);font-family:'Cinzel',serif;letter-spacing:.07em}
+.meta-dot{width:3px;height:3px;background:rgba(139,105,20,.38);border-radius:50%;display:inline-block}
+.sb{font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.1em;padding:.13rem .45rem;border:1px solid}
+.sb-s{color:#2a5a18;border-color:#2a5a18;background:rgba(42,90,24,.07)}
+.sb-e{color:#8b0000;border-color:#8b0000;background:rgba(139,0,0,.07)}
+.sb-p{color:#7a5218;border-color:#7a5218;background:rgba(122,82,24,.07)}
+.sb-a{color:rgba(26,18,8,.38);border-color:rgba(26,18,8,.28);background:rgba(26,18,8,.04)}
+
+.empty-state{text-align:center;padding:4rem 1rem;color:var(--gold-dim);opacity:.45}
+.empty-state p{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.3em}
+
+/* ── MODAL ── */
+#modal{display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;padding:1rem}
+#modal.open{display:flex}
+.modal-bd{position:absolute;inset:0;background:rgba(4,3,0,.93);backdrop-filter:blur(7px);cursor:pointer}
+.modal-scroll{position:relative;z-index:1;width:100%;max-width:650px;max-height:88vh;overflow-y:auto;animation:scrollOpen .4s cubic-bezier(.16,1,.3,1)}
+@keyframes scrollOpen{from{transform:scale(.88) translateY(28px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+
+.scroll-rod{height:28px;background:linear-gradient(to right,#6a4c14,#c49a2a,#e8cc72,#c49a2a,#6a4c14);position:relative;display:flex;align-items:center;justify-content:center;overflow:visible}
+.scroll-rod::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 38px,rgba(0,0,0,.07) 38px,rgba(0,0,0,.07) 39px)}
+.scroll-rod::after{content:'⟡ ⟡ ⟡';font-size:.58rem;color:rgba(26,18,8,.35);letter-spacing:.5rem;position:relative;z-index:1}
+.rod-knob{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e8cc72,#8b6820);border:2px solid #5a3a0a;box-shadow:inset 0 2px 4px rgba(255,255,255,.28),0 4px 8px rgba(0,0,0,.5);z-index:2}
+.rod-knob.left{left:-12px}.rod-knob.right{right:-12px}
+
+.scroll-body{background:linear-gradient(158deg,#f5eba5 0%,#eedd75 28%,#e8d46a 55%,#eddc78 100%);padding:2.2rem 2.8rem;position:relative}
+.scroll-body::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence baseFrequency='0.6' numOctaves='4' type='fractalNoise' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23f)' opacity='0.05'/%3E%3C/svg%3E");pointer-events:none;mix-blend-mode:multiply}
+
+.modal-close{position:absolute;top:.6rem;right:.9rem;background:none;border:none;color:var(--blood);font-size:1rem;cursor:pointer;z-index:10;font-family:'Cinzel',serif;line-height:1;opacity:.65;transition:opacity .2s}
+.modal-close:hover{opacity:1}
+
+.m-num{font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.3em;color:var(--blood);margin-bottom:.25rem}
+.m-title{font-family:'Cinzel Decorative',serif;font-size:1.28rem;color:#1a1208;margin-bottom:.4rem;line-height:1.3}
+.m-divider{height:1px;background:linear-gradient(to right,var(--blood),rgba(139,105,20,.38),transparent);margin:.7rem 0}
+
+.m-fields{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-bottom:.8rem}
+.m-field{display:flex;flex-direction:column;gap:.12rem}
+.m-field-lbl{font-family:'Cinzel',serif;font-size:.48rem;letter-spacing:.22em;color:rgba(26,18,8,.38);text-transform:uppercase}
+.m-field-val{font-family:'Cinzel',serif;font-size:.76rem;color:#1a1208;font-weight:600}
+
+.m-body-lbl{font-family:'Cinzel',serif;font-size:.5rem;letter-spacing:.22em;color:rgba(26,18,8,.38);text-transform:uppercase;margin-bottom:.55rem}
+.m-body{font-size:.88rem;line-height:2;color:rgba(26,18,8,.8);white-space:pre-wrap;font-family:'IM Fell English',serif;font-style:italic}
+.m-footer{display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:1.6rem;opacity:.18}
+.m-footer-line{flex:1;height:1px;background:rgba(26,18,8,.3)}
+.m-seal-big{font-family:'Cinzel Decorative',serif;font-size:1.6rem;color:var(--blood)}
+
+.modal-scroll::-webkit-scrollbar{width:5px}
+.modal-scroll::-webkit-scrollbar-track{background:rgba(139,105,20,.12)}
+.modal-scroll::-webkit-scrollbar-thumb{background:rgba(139,105,20,.45);border-radius:3px}
+
+@media(max-width:580px){
+  .char-oval{width:160px;height:210px}
+  .m-fields{grid-template-columns:1fr 1fr}
+  .scroll-body{padding:1.4rem 1.4rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ HERO ══════════ -->
+<div id="scene">
+  <div id="sky"></div>
+  <svg id="stars" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"></svg>
+  <div id="moon"></div>
+  <canvas id="sandCanvas"></canvas>
+
+  <!-- Kanji flottants -->
+  <div class="kanji-float" style="left:7%;top:18%;font-size:5rem;animation-duration:20s;animation-delay:-6s">砂</div>
+  <div class="kanji-float" style="right:9%;top:30%;font-size:3.2rem;animation-duration:25s;animation-delay:-14s">風</div>
+  <div class="kanji-float" style="left:18%;top:52%;font-size:4rem;animation-duration:22s;animation-delay:-9s">忍</div>
+  <div class="kanji-float" style="right:22%;top:58%;font-size:2.8rem;animation-duration:18s;animation-delay:-3s">砂隠れ</div>
+  <div class="kanji-float" style="left:45%;top:72%;font-size:2.2rem;animation-duration:30s;animation-delay:-20s">砂漠</div>
+
+  <!-- Silhouette village -->
+  <svg id="village-sil" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+    <g fill="rgba(200,151,58,1)">
+      <rect x="50" y="105" width="16" height="95"/><polygon points="50,105 58,78 66,105"/>
+      <rect x="80" y="122" width="24" height="78"/><polygon points="80,122 92,92 104,122"/>
+      <rect x="120" y="82" width="11" height="118"/><polygon points="120,82 125.5,56 131,82"/>
+      <rect x="146" y="112" width="28" height="88"/><polygon points="146,112 160,82 174,112"/>
+      <rect x="190" y="92" width="18" height="108"/><polygon points="190,92 199,65 208,92"/>
+      <rect x="225" y="132" width="14" height="68"/>
+      <rect x="250" y="72" width="34" height="128"/><polygon points="250,72 267,42 284,72"/>
+      <rect x="300" y="98" width="20" height="102"/><polygon points="300,98 310,70 320,98"/>
+      <rect x="340" y="32" width="58" height="168"/><polygon points="330,32 369,0 408,32"/>
+      <rect x="355" y="16" width="7" height="20"/><rect x="366" y="10" width="6" height="26"/><rect x="378" y="16" width="7" height="20"/>
+      <rect x="415" y="98" width="20" height="102"/><polygon points="415,98 425,70 435,98"/>
+      <rect x="450" y="72" width="34" height="128"/><polygon points="450,72 467,42 484,72"/>
+      <rect x="500" y="132" width="14" height="68"/>
+      <rect x="526" y="92" width="18" height="108"/><polygon points="526,92 535,65 544,92"/>
+      <rect x="558" y="112" width="28" height="88"/><polygon points="558,112 572,82 586,112"/>
+      <rect x="605" y="82" width="11" height="118"/><polygon points="605,82 610.5,56 616,82"/>
+      <rect x="630" y="122" width="24" height="78"/><polygon points="630,122 642,92 654,122"/>
+      <rect x="670" y="105" width="16" height="95"/><polygon points="670,105 678,78 686,105"/>
+      <rect x="700" y="133" width="13" height="67"/>
+      <rect x="725" y="108" width="15" height="92"/><polygon points="725,108 732.5,82 740,108"/>
+    </g>
+  </svg>
+
+  <!-- Dunes animées -->
+  <div id="dunes-wrap">
+    <svg viewBox="0 0 1550 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="width:100%;display:block">
+      <path d="M0,300 L0,195 Q195,90 390,160 Q585,230 780,148 Q975,66 1170,138 Q1365,210 1550,170 L1550,300 Z" fill="#1a1005" opacity=".92"/>
+      <path d="M0,300 L0,228 Q160,148 320,185 Q510,228 640,178 Q820,128 1000,172 Q1180,216 1330,182 Q1450,160 1550,172 L1550,300 Z" fill="#2d1f08" opacity=".96">
+        <animateTransform attributeName="transform" type="translate" values="0,0;-22,0;0,0" dur="8s" repeatCount="indefinite"/>
+      </path>
+      <path d="M0,300 L0,252 Q105,218 210,238 Q360,260 490,232 Q615,205 740,228 Q885,252 1010,228 Q1165,202 1290,222 Q1425,242 1550,232 L1550,300 Z" fill="#3d2a0c" opacity="1">
+        <animateTransform attributeName="transform" type="translate" values="0,0;16,0;0,0" dur="6s" repeatCount="indefinite"/>
+      </path>
+      <path d="M0,300 L0,270 Q82,256 164,264 Q268,274 388,260 Q508,246 628,262 Q768,280 892,260 Q1008,240 1128,258 Q1272,276 1440,262 L1550,265 L1550,300 Z" fill="#5c3e18" opacity="1">
+        <animateTransform attributeName="transform" type="translate" values="0,0;-12,0;0,0" dur="4.5s" repeatCount="indefinite"/>
+      </path>
+    </svg>
+  </div>
+
+  <!-- Contenu héro -->
+  <div id="hero-content">
+    <div class="village-label">Sunagakure no Sato</div>
+
+    <div class="char-wrapper" id="charWrapper" onclick="showReports()">
+      <div class="ring-outer"></div>
+      <div class="ring-inner"></div>
+      <div class="char-oval" id="charOval">
+        <div class="char-placeholder" id="charPH">
+          <svg width="52" height="52" viewBox="0 0 52 52" fill="none" stroke="currentColor" stroke-width="1.2">
+            <circle cx="26" cy="18" r="10.5"/><path d="M5 46c0-11.6 9.4-21 21-21s21 9.4 21 21" stroke-linecap="round"/>
+          </svg>
+          <span>Image du personnage</span>
+        </div>
+        <img id="charImg" src="" alt="Ousen Zafura"/>
+      </div>
+      <div class="char-hover-label">Consulter les archives</div>
+    </div>
+
+    <div class="name-banner">
+      <div class="char-name">Ousen Zafura</div>
+    </div>
+    <div class="char-rank">Shinobi · Village Caché du Sable</div>
+    <div class="scroll-cue" onclick="showReports()">
+      <span>Archives de Mission</span>
+      <svg width="16" height="9" viewBox="0 0 16 9" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l7 7 7-7"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ RAPPORTS ══════════ -->
+<div id="reports-page">
+  <div class="rp-bg"></div>
+  <div class="rp-dunes">
+    <svg viewBox="0 0 1440 280" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="width:100%;display:block">
+      <path d="M0,280 L0,180 Q240,80 480,148 Q720,216 960,128 Q1200,40 1440,120 L1440,280 Z" fill="#1a1005" opacity=".8"/>
+      <path d="M0,280 L0,232 Q200,175 400,205 Q640,235 800,195 Q1000,155 1200,185 Q1380,210 1440,200 L1440,280 Z" fill="#2d1f08" opacity=".9"/>
+      <path d="M0,280 L0,262 Q180,245 360,256 Q580,268 720,252 Q900,235 1080,252 Q1280,268 1440,258 L1440,280 Z" fill="#3d2a0c"/>
+    </svg>
+  </div>
+  <div class="heat-line"></div>
+  <canvas id="sandCanvas2"></canvas>
+
+  <div class="reports-wrap">
+    <button class="back-btn" onclick="hideReports()">
+      <svg width="13" height="10" viewBox="0 0 13 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5H1M5 1L1 5l4 4"/></svg>
+      Retour
+    </button>
+    <div class="reports-header-block">
+      <div class="rh-ornament">⟡ ⟡ ⟡</div>
+      <div class="rh-title">Archives de Mission</div>
+      <div class="rh-sub">Ousen Zafura · Sunagakure</div>
+      <div class="rh-line"></div>
+    </div>
+    <div id="reportsList"></div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL ══════════ -->
+<div id="modal">
+  <div class="modal-bd" onclick="closeModal()"></div>
+  <div class="modal-scroll">
+    <div class="scroll-rod"><div class="rod-knob left"></div><div class="rod-knob right"></div></div>
+    <div class="scroll-body">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="m-num" id="mNum"></div>
+      <div class="m-title" id="mTitle"></div>
+      <div class="m-divider"></div>
+      <div class="m-fields" id="mFields"></div>
+      <div class="m-divider"></div>
+      <div class="m-body-lbl">Rapport complet</div>
+      <div class="m-body" id="mBody"></div>
+      <div class="m-footer"><div class="m-footer-line"></div><div class="m-seal-big">⟡</div><div class="m-footer-line"></div></div>
+    </div>
+    <div class="scroll-rod"><div class="rod-knob left"></div><div class="rod-knob right"></div></div>
+  </div>
+</div>
+
+<script>
+/* ÉTOILES */
+(()=>{
+  const svg=document.getElementById('stars');
+  let s='';
+  for(let i=0;i<240;i++){
+    const x=(Math.random()*1440).toFixed(1);
+    const y=(Math.random()*540).toFixed(1);
+    const r=(Math.random()*1.3+0.2).toFixed(2);
+    const op=(Math.random()*.65+.1).toFixed(2);
+    const dur=(2.5+Math.random()*4).toFixed(1);
+    const del=(Math.random()*-8).toFixed(1);
+    s+=`<circle cx="${x}" cy="${y}" r="${r}" fill="rgba(245,228,176,${op})"><animate attributeName="opacity" values="${op};${(op*.15).toFixed(2)};${op}" dur="${dur}s" begin="${del}s" repeatCount="indefinite"/></circle>`;
+  }
+  svg.innerHTML=s;
+})();
+
+/* SABLE CANVAS */
+function makeSand(id){
+  const cv=document.getElementById(id);
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  let W,H,pts=[];
+  const resize=()=>{W=cv.width=window.innerWidth;H=cv.height=window.innerHeight};
+  resize();window.addEventListener('resize',resize);
+  for(let i=0;i<150;i++)pts.push({
+    x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,
+    vx:(Math.random()*.8+.2)*(Math.random()>.5?1:-1)*.5,
+    vy:-(Math.random()*.9+.2),
+    sz:Math.random()*1.8+.3,op:Math.random()*.45+.08,life:Math.random()
+  });
+  const loop=()=>{
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.life-=.0025;
+      if(p.life<=0||p.y<-10||p.x<-20||p.x>W+20){
+        p.x=Math.random()*W;p.y=H*.55+Math.random()*H*.45;
+        p.vx=(Math.random()*.8+.2)*(Math.random()>.5?1:-1)*.5;
+        p.vy=-(Math.random()*1+.25);p.life=.8+Math.random()*.2;
+        p.op=Math.random()*.45+.08;p.sz=Math.random()*1.8+.3;
+      }
+      ctx.beginPath();ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);
+      ctx.fillStyle=`rgba(210,165,65,${p.op*p.life})`;ctx.fill();
+    });
+    requestAnimationFrame(loop);
+  };loop();
+}
+makeSand('sandCanvas');
+
+/* PARALLAXE */
+document.addEventListener('mousemove',e=>{
+  const mx=(e.clientX/window.innerWidth-.5)*20;
+  const my=(e.clientY/window.innerHeight-.5)*10;
+  const m=document.getElementById('moon');if(m)m.style.transform=`translate(${mx*.5}px,${my*.3}px)`;
+  const v=document.getElementById('village-sil');if(v)v.style.transform=`translateX(calc(-50% + ${mx*.9}px))`;
+  const st=document.getElementById('stars');if(st)st.style.transform=`translate(${mx*.18}px,${my*.08}px)`;
+});
+
+/* ── API ── */
+const API = '';  // même origine — le serveur Flask sert aussi les HTML
+let _reports = [];  // cache local
+
+async function fetchReports() {
+  try {
+    const res = await fetch(`${API}/api/reports`);
+    _reports = await res.json();
+  } catch(e) { _reports = []; }
+}
+
+async function fetchCharImage() {
+  try {
+    const res = await fetch(`${API}/api/char-image`);
+    const data = await res.json();
+    if (data.image_url) {
+      const img = document.getElementById('charImg');
+      img.src = data.image_url;
+      img.style.display = 'block';
+      document.getElementById('charPH').style.display = 'none';
+    }
+  } catch(e) {}
+}
+
+/* IMAGE au chargement */
+fetchCharImage();
+
+/* NAV */
+async function showReports() {
+  document.getElementById('scene').style.display = 'none';
+  const rp = document.getElementById('reports-page');
+  rp.classList.add('active');
+  makeSand('sandCanvas2');
+  window.scrollTo(0, 0);
+  await fetchReports();
+  renderReports();
+}
+function hideReports() {
+  document.getElementById('reports-page').classList.remove('active');
+  document.getElementById('scene').style.display = '';
+}
+
+/* RENDER */
+const sealC = {S:'seal-s',A:'seal-a',B:'seal-b',C:'seal-c',D:'seal-d'};
+const sbC   = {'Succès':'sb-s','Échec':'sb-e','Partiel':'sb-p','Annulé':'sb-a'};
+
+function renderReports() {
+  const l = document.getElementById('reportsList');
+  if (!_reports.length) {
+    l.innerHTML = '<div class="empty-state"><p>Aucun rapport enregistré</p></div>';
+    return;
+  }
+  l.innerHTML = _reports.map((r, i) => `
+    <div class="report-card" onclick="openModal(${r.id})" style="animation-delay:${i*.08}s">
+      <div class="rc-bg">
+        <div class="report-seal ${sealC[r.rank]||'seal-d'}">${r.rank}</div>
+        <div class="rc-inner">
+          <div class="rc-num-block"><span class="rc-num">${r.number}</span><span class="rc-num-lbl">Mission</span></div>
+          <div class="rc-sep"></div>
+          <div class="rc-text">
+            <div class="rc-title">${r.title}</div>
+            <div class="rc-meta">
+              <span class="meta-item">${r.date_mission||'—'}</span><span class="meta-dot"></span>
+              <span class="meta-item">${r.lieu||'—'}</span><span class="meta-dot"></span>
+              <span class="sb ${sbC[r.statut]||'sb-s'}">${r.statut||''}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* MODAL */
+function openModal(id) {
+  const r = _reports.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('mNum').textContent   = `Rapport de Mission Nº ${r.number}`;
+  document.getElementById('mTitle').textContent = r.title;
+  document.getElementById('mBody').textContent  = r.body;
+  const fields = [
+    {l:'Rang',   v:r.rank},
+    {l:'Date',   v:r.date_mission},
+    {l:'Durée',  v:r.duration},
+    {l:'Lieu',   v:r.lieu},
+    {l:'Statut', v:r.statut},
+  ].filter(f => f.v);
+  document.getElementById('mFields').innerHTML = fields.map(f =>
+    `<div class="m-field"><span class="m-field-lbl">${f.l}</span><span class="m-field-val">${f.v}</span></div>`
+  ).join('');
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+</script>
+</body>
+</html>
